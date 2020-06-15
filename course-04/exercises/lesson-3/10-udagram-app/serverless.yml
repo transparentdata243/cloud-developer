@@ -61,11 +61,11 @@ functions:
           method: post
           path: groups
           cors: true
-          reqValidatorname: RequestBodyValidator
+          reqValidatorName: RequestBodyValidator
           documentation:
             summary: Create a new group
             description: Create a new group
-            requestModels: 
+            requestModels:
               'application/json': GroupRequest
 
 
