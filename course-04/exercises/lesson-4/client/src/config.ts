@@ -1,1 +1,1 @@
-export const apiEndpoint = '12098wimre.execute-api.us-east-1.amazonaws.com/dev'
+export const apiEndpoint = 'https://12098wimre.execute-api.us-east-1.amazonaws.com/dev'
