@@ -80,6 +80,12 @@ provider:
       Action:
         - kms:Decrypt
       Resource: !GetAtt KMSKey.Arn
+    - Effect: 'Allow' # xray permissions (required)
+      Action:
+        - xray:PutTraceSegments
+        - xray:PutTelemetryRecords
+      Resource:
+        - '*'      
 
 custom:
   topicName: imagesTopic-${self:provider.stage}
