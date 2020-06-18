@@ -84,6 +84,9 @@ custom:
         schema: ${file(models/create-image-request.json)}
 
 functions:
+  RS256Auth:
+    handler: src/lambda/auth/rs256Auth0Authorizer.handler
+
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
