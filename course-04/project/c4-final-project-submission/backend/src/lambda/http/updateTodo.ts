@@ -1,29 +1,34 @@
 import 'source-map-support/register'
 import * as AWS from 'aws-sdk'
+import * as AWSXRay from 'aws-xray-sdk'
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
 
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
+import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('todos')
-const docClient = new AWS.DynamoDB.DocumentClient()
+
+const XAWS = AWSXRay.captureAWS(AWS)
+const docClient = new XAWS.DynamoDB.DocumentClient()
 
 const todosTable = process.env.TODOS_TABLE
-//const nameIndex = process.env.NAME_INDEX
+const todoIdIndex = process.env.TODOID_INDEX
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info(event)
-
+  const userId = getUserId(event)
   const todoId = event.pathParameters.todoId
   const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
 
   // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
   const result = await docClient.query({
     TableName: todosTable,
-    //IndexName: nameIndex,
-    KeyConditionExpression: 'todoId = :todoId',
+    IndexName: todoIdIndex,
+    KeyConditionExpression: 'userId = :userId and todoId = :todoId',
     ExpressionAttributeValues: {
-        ':todoId': todoId
+      ':userId': userId,
+      ':todoId': todoId
     }
   }).promise()
 
@@ -40,8 +45,9 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   console.log('update able to read it out')
 
   const updatedItem = {
+    userId: userId,
     todoId: todoId,
-    createdAt: result.Items[0].timestamp,
+    createdAt: result.Items[0].createdAt,
     ...updatedTodo,
     attachmentUrl: result.Items[0].attachmentUrl
   }
