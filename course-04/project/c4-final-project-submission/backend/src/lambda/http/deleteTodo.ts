@@ -29,6 +29,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       ':todoId': todoId
     }
   }).promise()
+  console.log("result: ", result)
+  console.log("result.Count = ", result.Count)
 
   if (result.Count === 0) {
     return {
@@ -41,7 +43,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   }
 
   const key = {
-    todoId: todoId
+    userId: userId,
+    createdAt: result.Items[0].createdAt
   }
 
   await docClient.delete({
@@ -49,6 +52,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
       Key: key
   }).promise();
 
+  console.log('deletion finishes')
   return {
     statusCode: 200,
     headers: {

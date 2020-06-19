@@ -12,11 +12,9 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   logger.info(event)
   const userId = getUserId(event)
   logger.info(userId)
-  
-  const items = getAllTodos(userId)
-  logger.info("Finish DB query")
 
-  logger.info(JSON.stringify({items}))
+  const items = await getAllTodos(userId)
+  logger.info("Finish DB query")
 
   return {
     statusCode: 200,
