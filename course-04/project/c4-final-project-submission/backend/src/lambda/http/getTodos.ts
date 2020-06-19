@@ -8,7 +8,7 @@ import { getAllTodos } from '../../businessLogic/todos'
 const logger = createLogger('todos')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  // TODO: Get all TODO items for a current user
+  // DONE: Get all TODO items for a current user
   logger.info(event)
   const userId = getUserId(event)
   logger.info(userId)
