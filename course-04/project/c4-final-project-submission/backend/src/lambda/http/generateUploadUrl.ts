@@ -1,7 +1,9 @@
 import 'source-map-support/register'
 import * as AWS from 'aws-sdk'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
+import { createLogger } from '../../utils/logger'
 
+const logger = createLogger('todos')
 const docClient = new AWS.DynamoDB.DocumentClient()
 const todosTable = process.env.TODOS_TABLE
 const attachmentsS3Bucket = process.env.ATTACHMENTS_S3_BUCKET
@@ -14,6 +16,8 @@ const bucketName = process.env.ATTACHMENTS_S3_BUCKET
 const urlExpiration = process.env.SIGNED_URL_EXPIRATION
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  logger.info(event)
+
   const todoId = event.pathParameters.todoId
 
   // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
@@ -38,7 +42,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const uploadUrl = getUploadUrl(todoId)
 
   const url = attachmentsS3Bucket + '.s3.amazonaws.com/' + todoId
-  
+
   const updatedItem = {
     ...result.Items[0],
     attachmentUrl: url

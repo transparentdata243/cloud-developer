@@ -132,8 +132,8 @@ functions:
           method: post
           path: groups
           cors: true
-          authorizer: RS256Auth
-          reqValidatorName: RequestBodyValidator
+          #authorizer: RS256Auth
+          #reqValidatorName: RequestBodyValidator
           documentation:
             summary: Create a new group
             description: Create a new group
