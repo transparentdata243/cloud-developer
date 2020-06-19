@@ -1,10 +1,14 @@
 import 'source-map-support/register'
 import * as AWS from 'aws-sdk'
+import * as AWSXRay from 'aws-xray-sdk'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('todos')
-const docClient = new AWS.DynamoDB.DocumentClient()
+
+const XAWS = AWSXRay.captureAWS(AWS)
+const docClient = new XAWS.DynamoDB.DocumentClient()
+
 const todosTable = process.env.TODOS_TABLE
 const attachmentsS3Bucket = process.env.ATTACHMENTS_S3_BUCKET
 
