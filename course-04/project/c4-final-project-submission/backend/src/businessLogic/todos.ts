@@ -32,10 +32,14 @@ export async function createTodo(
 }
 
 export async function deleteTodo(userId: string, todoId: string) {
-    await todoAccess.deleteTodo(userId, todoId)
+  await todoAccess.deleteTodo(userId, todoId)
 }
 
 export async function updateTodo(userId: string, todoId: string, updatedTodo: UpdateTodoRequest) {
-    await todoAccess.updateTodo(userId, todoId, updatedTodo)
+  await todoAccess.updateTodo(userId, todoId, updatedTodo)
+}
+
+export async function generateUploadUrl(userId: string, todoId: string): Promise<string> {
+  return await todoAccess.generateUploadUrl(userId, todoId)
 }
 

@@ -10,12 +10,20 @@ const XAWS = AWSXRay.captureAWS(AWS)
 
 import { TodoItem } from '../models/TodoItem'
 
+const s3 = new AWS.S3({
+  signatureVersion: 'v4'
+})
+
+const bucketName = process.env.ATTACHMENTS_S3_BUCKET
+const urlExpiration = process.env.SIGNED_URL_EXPIRATION
+
 export class TodoAccess {
 
   constructor(
     private readonly docClient: DocumentClient = createDynamoDBClient(),
     private readonly todosTable = process.env.TODOS_TABLE,
-    private readonly todoIdIndex = process.env.TODOID_INDEX
+    private readonly todoIdIndex = process.env.TODOID_INDEX,
+    private readonly attachmentsS3Bucket = process.env.ATTACHMENTS_S3_BUCKET,
     ) {
   }
 
@@ -103,7 +111,38 @@ export class TodoAccess {
       TableName: this.todosTable,
       Item: updatedItem
     }).promise()
-  
+  }
+
+  async generateUploadUrl(userId: string, todoId: string): Promise<string> {
+    const result = await this.docClient.query({
+      TableName: this.todosTable,
+      IndexName: this.todoIdIndex,
+      KeyConditionExpression: 'userId = :userId and todoId = :todoId',
+      ExpressionAttributeValues: {
+        ':userId': userId,
+        ':todoId': todoId
+      }
+    }).promise()
+
+    if (result.Count === 0) {
+      // error check at the top level
+      return ""
+    }
+    const uploadUrl = getUploadUrl(todoId)
+
+    const attachmentUrl = 'https://' + this.attachmentsS3Bucket + '.s3.amazonaws.com/' + todoId
+
+    const updatedItem = {
+      ...result.Items[0],
+      attachmentUrl: attachmentUrl
+    }
+
+    await this.docClient.put({
+      TableName: this.todosTable,
+      Item: updatedItem
+    }).promise()
+
+    return uploadUrl
   }
 }
 
@@ -117,4 +156,12 @@ function createDynamoDBClient() {
   }
 
   return new XAWS.DynamoDB.DocumentClient()
+}
+
+function getUploadUrl(todoId: string) {
+  return s3.getSignedUrl('putObject', {
+      Bucket: bucketName,
+      Key: todoId,
+      Expires: parseInt(urlExpiration)
+  })
 }
