@@ -14,14 +14,12 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const todoId = event.pathParameters.todoId
   const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
 
-  const updatedItem = await updateTodo(userId, todoId, updatedTodo)
+  await updateTodo(userId, todoId, updatedTodo)
   return {
     statusCode: 204,
     headers: {
         'Access-Control-Allow-Origin': '*'
     },
-    body: JSON.stringify({
-        updatedItem
-    })
+    body: ''
   }
 }

@@ -2,6 +2,8 @@ import * as AWS  from 'aws-sdk'
 import * as AWSXRay from 'aws-xray-sdk'
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { createLogger } from '../utils/logger'
+import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
+
 const logger = createLogger('todos')
 
 const XAWS = AWSXRay.captureAWS(AWS)
@@ -12,7 +14,6 @@ export class TodoAccess {
 
   constructor(
     private readonly docClient: DocumentClient = createDynamoDBClient(),
-    private readonly groupsTable = process.env.GROUPS_TABLE,
     private readonly todosTable = process.env.TODOS_TABLE,
     private readonly todoIdIndex = process.env.TODOID_INDEX
     ) {
@@ -43,6 +44,66 @@ export class TodoAccess {
     }).promise()  
 
     return todoItem
+  }
+
+  async deleteTodo(userId: string, todoId: string) {
+    const result = await this.docClient.query({
+      TableName: this.todosTable,
+      IndexName: this.todoIdIndex,
+      KeyConditionExpression: 'userId = :userId and todoId = :todoId',
+      ExpressionAttributeValues: {
+          ':userId': userId,
+          ':todoId': todoId
+      }
+    }).promise()
+
+    const key = {
+        userId: userId,
+        createdAt: result.Items[0].createdAt
+    }
+    console.log("key = ", key)
+    
+    await this.docClient.delete({
+        TableName: this.todosTable,
+        Key: key
+    }).promise();
+  }   
+
+  async updateTodo(userId: string, todoId: string, updatedTodo: UpdateTodoRequest) {
+    const result = await this.docClient.query({
+      TableName: this.todosTable,
+      IndexName: this.todoIdIndex,
+      KeyConditionExpression: 'userId = :userId and todoId = :todoId',
+      ExpressionAttributeValues: {
+          ':userId': userId,
+          ':todoId': todoId
+      }
+    }).promise()
+  
+    // if (result.Count === 0) {
+    //   return {
+    //     statusCode: 404,
+    //     headers: {
+    //         'Access-Control-Allow-Origin': '*'
+    //     },
+    //     body: ''
+    //   }
+    // }
+  
+    console.log('update able to read it out')
+  
+    const updatedItem = {
+      todoId: todoId,
+      createdAt: result.Items[0].timestamp,
+      ...updatedTodo,
+      attachmentUrl: result.Items[0].attachmentUrl
+    }
+  
+    await this.docClient.put({
+      TableName: this.todosTable,
+      Item: updatedItem
+    }).promise()
+  
   }
 }
 
