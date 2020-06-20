@@ -12,7 +12,7 @@ const docClient = new XAWS.DynamoDB.DocumentClient()
 
 const todosTable = process.env.TODOS_TABLE
 const todoIdIndex = process.env.TODOID_INDEX
-const attachmentsS3Bucket = process.env.ATTACHMENTS_S3_BUCKET
+//const attachmentsS3Bucket = process.env.ATTACHMENTS_S3_BUCKET
 
 const s3 = new AWS.S3({
   signatureVersion: 'v4'
@@ -49,11 +49,11 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   }
   const uploadUrl = getUploadUrl(todoId)
 
-  const url = attachmentsS3Bucket + '.s3.amazonaws.com/' + todoId
+  //const url = attachmentsS3Bucket + '.s3.amazonaws.com/' + todoId
 
   const updatedItem = {
     ...result.Items[0],
-    attachmentUrl: url
+    attachmentUrl: uploadUrl
   }
 
   await docClient.put({

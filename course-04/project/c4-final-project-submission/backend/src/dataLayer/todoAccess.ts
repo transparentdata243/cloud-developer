@@ -93,8 +93,9 @@ export class TodoAccess {
     console.log('update able to read it out')
   
     const updatedItem = {
-      todoId: todoId,
+      userId: userId,
       createdAt: result.Items[0].timestamp,
+      todoId: todoId,
       ...updatedTodo,
       attachmentUrl: result.Items[0].attachmentUrl
     }
