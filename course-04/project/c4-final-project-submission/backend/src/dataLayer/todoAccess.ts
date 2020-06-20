@@ -90,16 +90,15 @@ export class TodoAccess {
     //   }
     // }
   
-    console.log('update able to read it out')
-  
     const updatedItem = {
       userId: userId,
-      createdAt: result.Items[0].timestamp,
+      createdAt: result.Items[0].createdAt,
       todoId: todoId,
       ...updatedTodo,
       attachmentUrl: result.Items[0].attachmentUrl
     }
-  
+    console.log(updatedItem)
+
     await this.docClient.put({
       TableName: this.todosTable,
       Item: updatedItem
