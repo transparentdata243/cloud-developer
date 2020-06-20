@@ -32,10 +32,10 @@ export async function createTodo(
 }
 
 export async function deleteTodo(userId: string, todoId: string) {
-    await deleteTodo(userId, todoId)
+    await todoAccess.deleteTodo(userId, todoId)
 }
 
 export async function updateTodo(userId: string, todoId: string, updatedTodo: UpdateTodoRequest) {
-    await updateTodo(userId, todoId, updatedTodo)
+    await todoAccess.updateTodo(userId, todoId, updatedTodo)
 }
 
